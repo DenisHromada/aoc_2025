@@ -38,7 +38,7 @@ func main() {
 		}
 
 		for id := start_num; id <= end_num; id++ {
-			if isSilly(id) {
+			if isSilly_v2(id) {
 				silly_accum += id
 			}
 		}
@@ -47,19 +47,47 @@ func main() {
 	fmt.Printf("Silly sum: %v\n", silly_accum)
 }
 
-func isSilly(id int) bool {
-	num_str := strconv.Itoa(id)
-	if len(num_str)%2 != 0 {
-		return false
-	}
-	mid := len(num_str) / 2
-	first_half := num_str[:mid]
-	second_half := num_str[mid:]
+// func isSilly(id int) bool {
+// 	num_str := strconv.Itoa(id)
+// 	if len(num_str)%2 != 0 {
+// 		return false
+// 	}
+// 	mid := len(num_str) / 2
+// 	first_half := num_str[:mid]
+// 	second_half := num_str[mid:]
 
-	if first_half == second_half {
-		return true
+// 	if first_half == second_half {
+// 		return true
+// 	}
+// 	return false
+// }
+
+func isSilly_v2(id int) bool {
+	num_str := strconv.Itoa(id)
+
+	for i := 1; i <= len(num_str)/2; i++ {
+		if has_silly_substring(num_str, i) {
+			return true
+		}
 	}
 	return false
+}
+
+func has_silly_substring(s string, subs_len int) bool {
+	if len(s)%subs_len != 0 {
+		return false
+	}
+
+	num_subs := len(s) / subs_len
+	first_subs := s[0:subs_len]
+
+	for i := 1; i < num_subs; i++ {
+		if first_subs != s[i*subs_len:(i+1)*subs_len] {
+			return false
+		}
+	}
+
+	return true
 }
 
 func SplitByComma(data []byte, atEOF bool) (advance int, token []byte, err error) {
