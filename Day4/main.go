@@ -37,6 +37,10 @@ func (w Warehouse) getVal(place Point) bool {
 	return w.floor[place.Y][place.X]
 }
 
+func (w Warehouse) setVal(place Point, value bool) {
+	w.floor[place.Y][place.X] = value
+}
+
 func main() {
 
 	file, _ := os.Open("input")
@@ -46,8 +50,10 @@ func main() {
 	fmt.Printf("Warehouse width: %v & height: %v\n", warehouseMap.width, warehouseMap.height)
 
 	task1_result := task1(warehouseMap)
+	task2_result := task2(warehouseMap)
 
 	fmt.Printf("Task 1 result: %v\n", task1_result)
+	fmt.Printf("Task 2 result: %v\n", task2_result)
 
 }
 
@@ -113,4 +119,29 @@ func parseWarehouse(scanner *bufio.Scanner) Warehouse {
 	w_struct := Warehouse{warehouse, len(warehouse[0]), len(warehouse)}
 
 	return w_struct
+}
+
+func task2(warehouse Warehouse) int {
+
+	accessed := 0
+	prev_accessed := 0
+
+	for {
+		prev_accessed = accessed
+
+		for y := range warehouse.height {
+			for x := range warehouse.width {
+				place := Point{x, y}
+				if warehouse.getVal(place) && is_not_surrounded(warehouse, place) {
+					accessed++
+					warehouse.setVal(place, false)
+				}
+			}
+		}
+		if prev_accessed == accessed {
+			break
+		}
+	}
+
+	return accessed
 }
