@@ -37,13 +37,14 @@ func (w Warehouse) getVal(place Point) bool {
 	return w.floor[place.Y][place.X]
 }
 
-func (w Warehouse) setVal(place Point, value bool) {
+func (w *Warehouse) setVal(place Point, value bool) {
 	w.floor[place.Y][place.X] = value
 }
 
 func main() {
 
 	file, _ := os.Open("input")
+	defer file.Close()
 	scanner := bufio.NewScanner(file)
 
 	warehouseMap := parseWarehouse(scanner)
