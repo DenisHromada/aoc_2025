@@ -24,21 +24,21 @@ type Warehouse struct {
 	height int //or depth/length
 }
 
-func (w Warehouse) is_in_bounds(place Point) bool {
-	if 0 <= place.Y && place.Y < w.height {
-		if 0 <= place.X && place.X < w.width {
+func (w Warehouse) IsInBounds(p Point) bool {
+	if 0 <= p.Y && p.Y < w.height {
+		if 0 <= p.X && p.X < w.width {
 			return true
 		}
 	}
 	return false
 }
 
-func (w Warehouse) getVal(place Point) bool {
-	return w.floor[place.Y][place.X]
+func (w Warehouse) Get(p Point) bool {
+	return w.floor[p.Y][p.X]
 }
 
-func (w *Warehouse) setVal(place Point, value bool) {
-	w.floor[place.Y][place.X] = value
+func (w *Warehouse) Set(p Point, value bool) {
+	w.floor[p.Y][p.X] = value
 }
 
 func main() {
@@ -50,39 +50,39 @@ func main() {
 	warehouseMap := parseWarehouse(scanner)
 	fmt.Printf("Warehouse width: %v & height: %v\n", warehouseMap.width, warehouseMap.height)
 
-	task1_result := task1(warehouseMap)
-	task2_result := task2(warehouseMap)
+	task1Result := task1(warehouseMap)
+	task2Result := task2(warehouseMap)
 
-	fmt.Printf("Task 1 result: %v\n", task1_result)
-	fmt.Printf("Task 2 result: %v\n", task2_result)
+	fmt.Printf("Task 1 result: %v\n", task1Result)
+	fmt.Printf("Task 2 result: %v\n", task2Result)
 
 }
 
 func task1(warehouse Warehouse) int {
 
-	condition_sum := 0
+	conditionSum := 0
 
 	for y := range warehouse.height {
 		for x := range warehouse.width {
 			place := Point{x, y}
-			if warehouse.getVal(place) && is_not_surrounded(warehouse, place) {
-				condition_sum++
+			if warehouse.Get(place) && isNotSurrounded(warehouse, place) {
+				conditionSum++
 			}
 		}
 	}
 
-	return condition_sum
+	return conditionSum
 }
 
-func is_not_surrounded(warehouse Warehouse, place Point) bool {
+func isNotSurrounded(warehouse Warehouse, place Point) bool {
 	neighbors := 0
 
-	neighborhood_delta := [8]Point{{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}}
+	neighborhoodDeltas := [8]Point{{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}}
 
-	for k := range len(neighborhood_delta) {
-		neighbor_place := place.Add(neighborhood_delta[k])
-		if warehouse.is_in_bounds(neighbor_place) {
-			if warehouse.getVal(neighbor_place) {
+	for k := range len(neighborhoodDeltas) {
+		neighborPlace := place.Add(neighborhoodDeltas[k])
+		if warehouse.IsInBounds(neighborPlace) {
+			if warehouse.Get(neighborPlace) {
 				neighbors++
 			}
 
@@ -103,43 +103,43 @@ func parseWarehouse(scanner *bufio.Scanner) Warehouse {
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		warehouse_row := make([]bool, len(line))
+		warehouseRow := make([]bool, len(line))
 		for i := 0; i < len(line); i++ {
 			switch line[i] {
 			case '@':
-				warehouse_row[i] = true
+				warehouseRow[i] = true
 			case '.':
-				warehouse_row[i] = false
+				warehouseRow[i] = false
 			default:
 				panic("oops")
 			}
 		}
-		warehouse = append(warehouse, warehouse_row)
+		warehouse = append(warehouse, warehouseRow)
 	}
 
-	w_struct := Warehouse{warehouse, len(warehouse[0]), len(warehouse)}
+	w := Warehouse{warehouse, len(warehouse[0]), len(warehouse)}
 
-	return w_struct
+	return w
 }
 
 func task2(warehouse Warehouse) int {
 
 	accessed := 0
-	prev_accessed := 0
+	prevAccessed := 0
 
 	for {
-		prev_accessed = accessed
+		prevAccessed = accessed
 
 		for y := range warehouse.height {
 			for x := range warehouse.width {
 				place := Point{x, y}
-				if warehouse.getVal(place) && is_not_surrounded(warehouse, place) {
+				if warehouse.Get(place) && isNotSurrounded(warehouse, place) {
 					accessed++
-					warehouse.setVal(place, false)
+					warehouse.Set(place, false)
 				}
 			}
 		}
-		if prev_accessed == accessed {
+		if prevAccessed == accessed {
 			break
 		}
 	}
