@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -98,45 +99,34 @@ func task1(parsedInput All) int {
 func task2(parsedInput All) int {
 	sum := 0
 
-	mergedRanges, hasMerged := mergeRangesIteration(parsedInput.ranges)
-	for {
-		if hasMerged == false {
-			break
-		}
-		mergedRanges, hasMerged = mergeRangesIteration(mergedRanges)
-	}
+	mergedRanges := mergeRanges(parsedInput.ranges)
 
 	for i := 0; i < len(mergedRanges); i++ {
 		start := mergedRanges[i].Start
 		end := mergedRanges[i].End
-		elements := end - start + 1
-		fmt.Printf("%v - %v is %v elements\n", start, end, elements)
+		// elements := end - start + 1
+		// fmt.Printf("%v - %v is %v elements\n", start, end, elements)
 		sum += end - start + 1
 	}
 
 	return sum
 }
 
-func mergeRangesIteration(originalRanges []Range) ([]Range, bool) {
+func mergeRanges(originalRanges []Range) []Range {
+	sort.Slice(originalRanges, func(i int, j int) bool {
+		return originalRanges[i].Start < originalRanges[j].Start
+	})
 
-	newRanges := []Range{}
-	hasMerged := false
-	for i := 0; i < len(originalRanges); i++ {
-		originalRange := originalRanges[i]
-		merged := false
-		for j := 0; j < len(newRanges); j++ {
-			newR := newRanges[j]
-			if newR.Overlaps(originalRange) {
-				fmt.Printf("%v-%v & %v-%v", originalRange.Start, originalRange.End, newR.Start, newR.End)
-				newRanges[j] = newR.Merge(originalRange)
-				fmt.Printf(" => %v-%v\n", newRanges[j].Start, newRanges[j].End)
-				merged = true
-				hasMerged = true
-			}
-		}
-		if merged == false {
-			newRanges = append(newRanges, originalRange)
+	newRanges := []Range{originalRanges[0]}
+
+	for i := 1; i < len(originalRanges); i++ {
+		lastRange := &newRanges[len(newRanges)-1]
+		if originalRanges[i].Start <= lastRange.End {
+			lastRange.End = max(lastRange.End, originalRanges[i].End)
+		} else {
+			newRanges = append(newRanges, originalRanges[i])
 		}
 	}
-	return newRanges, hasMerged
+
+	return newRanges
 }
