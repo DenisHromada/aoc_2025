@@ -9,25 +9,25 @@ import (
 	"strings"
 )
 
-type Range struct {
+type Interval struct {
 	Start int
 	End   int
 }
 
-func (r Range) Contains(id int) bool {
+func (r Interval) Contains(id int) bool {
 	return r.Start <= id && id <= r.End
 }
 
-func (r1 Range) Overlaps(r2 Range) bool {
+func (r1 Interval) Overlaps(r2 Interval) bool {
 	return r1.Start <= r2.End && r1.End >= r2.Start
 }
 
-func (r1 Range) Merge(r2 Range) Range {
-	return Range{min(r1.Start, r2.Start), max(r1.End, r2.End)}
+func (r1 Interval) Merge(r2 Interval) Interval {
+	return Interval{min(r1.Start, r2.Start), max(r1.End, r2.End)}
 }
 
 type All struct {
-	ranges        []Range
+	intervals     []Interval
 	ingredientIds []int
 }
 
@@ -60,11 +60,11 @@ func parseInput(scanner *bufio.Scanner) All {
 		end, e2 := strconv.Atoi(nums[1])
 
 		if e1 != nil || e2 != nil {
-			panic("fialed to parse range")
+			panic("fialed to parse interval")
 		}
 
-		newRange := Range{start, end}
-		input.ranges = append(input.ranges, newRange)
+		newRange := Interval{start, end}
+		input.intervals = append(input.intervals, newRange)
 	}
 
 	for scanner.Scan() {
@@ -85,8 +85,8 @@ func task1(parsedInput All) int {
 	sum := 0
 
 	for i := 0; i < len(parsedInput.ingredientIds); i++ {
-		for j := 0; j < len(parsedInput.ranges); j++ {
-			if parsedInput.ranges[j].Contains(parsedInput.ingredientIds[i]) {
+		for j := 0; j < len(parsedInput.intervals); j++ {
+			if parsedInput.intervals[j].Contains(parsedInput.ingredientIds[i]) {
 				sum++
 				break
 			}
@@ -99,9 +99,9 @@ func task1(parsedInput All) int {
 func task2(parsedInput All) int {
 	sum := 0
 
-	mergedRanges := mergeRanges(parsedInput.ranges)
+	mergedRanges := mergeRanges(parsedInput.intervals)
 
-	for i := 0; i < len(mergedRanges); i++ {
+	for i := range mergedRanges {
 		start := mergedRanges[i].Start
 		end := mergedRanges[i].End
 		// elements := end - start + 1
@@ -112,12 +112,12 @@ func task2(parsedInput All) int {
 	return sum
 }
 
-func mergeRanges(originalRanges []Range) []Range {
+func mergeRanges(originalRanges []Interval) []Interval {
 	sort.Slice(originalRanges, func(i int, j int) bool {
 		return originalRanges[i].Start < originalRanges[j].Start
 	})
 
-	newRanges := []Range{originalRanges[0]}
+	newRanges := []Interval{originalRanges[0]}
 
 	for i := 1; i < len(originalRanges); i++ {
 		lastRange := &newRanges[len(newRanges)-1]
