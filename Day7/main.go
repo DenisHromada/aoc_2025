@@ -15,8 +15,8 @@ type All struct {
 
 func main() {
 
-	file, _ := os.Open("input_sample")
-	// file, _ := os.Open("input")
+	// file, _ := os.Open("input_sample")
+	file, _ := os.Open("input")
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 
@@ -91,6 +91,34 @@ func task1(parsedInput All) int {
 
 func task2(parsedInput All) int {
 	sum := 0
+
+	down := image.Point{0, 1}
+
+	initialBeam := parsedInput.source.Add(down)
+	beams := map[int]int{}
+	beams[initialBeam.X] = 1
+
+	for i := range parsedInput.depth {
+		thisRowSplitters, rowHasSplitters := parsedInput.splitters[i]
+		for j, active := range beams {
+			if active == 0 {
+				continue
+			}
+			if rowHasSplitters {
+				splitter, exists := thisRowSplitters[j]
+				if exists && splitter {
+
+					beams[j-1] += beams[j]
+					beams[j+1] += beams[j]
+					beams[j] = 0
+				}
+			}
+		}
+	}
+
+	for _, value := range beams {
+		sum += value
+	}
 
 	return sum
 }
