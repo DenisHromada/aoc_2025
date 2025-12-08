@@ -44,7 +44,6 @@ func (c *Circuits) mergeByCircuitIds(circuitNumberA int, circuitNumberB int) boo
 	if circuitNumberA == circuitNumberB {
 		return false
 	}
-	fmt.Printf("merging %v into %v\n", circuitNumberB, circuitNumberA)
 	for p, circuitNumber := range c.points {
 		if circuitNumber == circuitNumberB {
 			c.points[p] = circuitNumberA
@@ -123,7 +122,6 @@ func task1(parsedInput All) int {
 	for i, p := range parsedInput.points {
 		circuits.points[p] = i
 	}
-	// fmt.Printf("%v\n", circuits.points[parsedInput.points[500]])
 
 	paired := 0
 	for {
@@ -134,18 +132,13 @@ func task1(parsedInput All) int {
 		})
 		closestPairs = closestPairs[:min(len(closestPairs), task_1_steps)]
 
-		// fmt.Printf("%v %v\n", testPoint, circuits.points[testPoint])
-		// fmt.Printf("%v\n", closestPairs)
-
-		// fmt.Printf("%v\n", circuits.points)
 		for _, pair := range closestPairs {
-			// fmt.Printf("point %v circuit %v\n", pair.points[0], circuits.points[pair.points[0]])
-			if circuits.mergeByPoints(pair.points[0], pair.points[1]) {
-				paired++
-				if paired+1 == task_1_steps {
-					break
-				}
+			circuits.mergeByPoints(pair.points[0], pair.points[1])
+			paired++
+			if paired+1 == task_1_steps {
+				break
 			}
+
 		}
 		if paired+1 == task_1_steps {
 			break
@@ -164,9 +157,7 @@ func task1(parsedInput All) int {
 	}
 	sort.Ints(topN)
 
-	fmt.Printf("%v\n", topN)
 	topN = topN[len(topN)-task_1_top_circuits:]
-	fmt.Printf("%v\n", topN)
 
 	for _, value := range topN {
 		product *= value
@@ -199,7 +190,37 @@ func getNClosestPairs(parsedInput All, circuits Circuits, closestPairs []PointPa
 }
 
 func task2(parsedInput All) int {
-	sum := 0
+	product := 1
 
-	return sum
+	circuits := Circuits{points: make(map[Vector3]int)}
+	for i, p := range parsedInput.points {
+		circuits.points[p] = i
+	}
+
+	paired := 0
+	for {
+		closestPairs := []PointPair{}
+		closestPairs = getNClosestPairs(parsedInput, circuits, closestPairs)
+		sort.Slice(closestPairs, func(i int, j int) bool {
+			return closestPairs[i].distance < closestPairs[j].distance
+		})
+		closestPairs = closestPairs[:min(len(closestPairs), task_1_steps)]
+
+		for _, pair := range closestPairs {
+			if circuits.mergeByPoints(pair.points[0], pair.points[1]) {
+				paired++
+				if paired+1 == task_1_steps {
+					product = pair.points[0].X * pair.points[1].X
+					break
+				}
+
+			}
+		}
+		if paired+1 == task_1_steps {
+			break
+		}
+
+	}
+
+	return product
 }
